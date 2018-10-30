@@ -38,4 +38,4 @@ if __name__ == '__main__':
     chunks = chunkify(iter(find_dirs(args.glob)), args.numprocs)
 
     pool = Pool(processes=args.numprocs)
-    res = [ pool.map(remove, chunk) for chunk in chunks ]
+    for chunk in chunks: pool.map(remove, chunk)
