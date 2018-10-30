@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# pylint: skip-file
 
 __author__ = "Nile ÓBroin"
 __copyright__ = "Copyright 2018, TURBULENT DYNAMICS"
@@ -20,19 +21,25 @@ import os, glob, sys, re
 import argparse
 import itertools
 from collections import defaultdict
+from itertools import islice
 
-def present_as_ranges(lst):
-    for _,b in itertools.groupby(enumerate(sorted(lst)), lambda x: x[1]-x[0]):
+def all_gaps(it):
+    for current_item, next_item in zip(it, islice(it, 1, None)):
+        yield next_item - current_item
+
+def present_as_ranges(lst, gap=1):
+    l = enumerate(x//gap for x in lst)
+    for _,b in itertools.groupby(l, lambda x: x[1]-x[0]):
         b = tuple(b)
-        start, end = b[0][1], b[-1][1]
+        start, end = gap*b[0][1], gap*b[-1][1]
         yield "%d-%d" % (start, end) if start != end else str(start)
 
-def missing_as_ranges(lst):
-    lst = [ x for x in range(min(lst), max(lst)) if x not in lst ]
-    return present_as_ranges(lst)
+def missing_as_ranges(lst, gap=1):
+    l = (x for x in range(min(lst), max(lst), gap) if x not in lst)
+    return present_as_ranges(l, gap)
 
 def get_steps(glb):
-    dir_list = glob.glob(glb)
+    dir_list = glob.iglob(glb)
     steps = defaultdict(list)
     regex = re.compile(r'step_(\d+)')
     for d in dir_list:
@@ -51,6 +58,9 @@ if __name__ == '__main__':
     steps = get_steps(args.glob)
 
     for k in steps.keys():
-       print("\nBatch «%s»:" % k)
-       print("  Files present: [%s]" % ','.join(x for x in present_as_ranges(steps[k])))
-       print("  Files missing: [%s]" % ','.join(x for x in missing_as_ranges(steps[k])))
+        steps[k].sort()
+        gap = min(all_gaps(steps[k]))
+        print("\nBatch «%s»:" % k)
+        print("  Gap size      : %d" % gap)
+        print("  Files present : [%s]" % ','.join(x for x in present_as_ranges(steps[k], gap)))
+        print("  Files missing : [%s]" % ','.join(x for x in missing_as_ranges(steps[k], gap)))
