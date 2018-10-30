@@ -1,60 +1,41 @@
 #!/usr/bin/env python3
+
 __author__ = "Nile ÓBroin"
 __copyright__ = "Copyright 2018, TURBULENT DYNAMICS"
 
 """
 Utility to delete thousands of files
-
 Should take only 1 glob as input
 """
 
 import argparse
 import os, glob, sys
+import multiprocessing
+from multiprocessing import Pool
+from shutil import rmtree
+import itertools
+from itertools import islice, takewhile, repeat
 
-NUM_FILES_PER_THREAD = 100
-NUM_PROCS = 2
+NUM_PROCS = 8
 
+def find_dirs(glb):
+    for x in glob.iglob(glb):
+        d = os.path.realpath(x)
+        if os.path.isdir(d):
+            yield d
 
-parser = argparse.ArgumentParser(description='Process all files')
+def remove(dirname):
+    print("[PID: %d] Removing %s" % (os.getpid(), dirname))
+    rmtree(dirname)
 
-parser.add_argument('glob', help='glob')
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Utility to delete thousands of files.')
+    parser.add_argument('glob', help='Shell glob expression, quoted')
+    parser.add_argument('-n', '--numprocs', type=int, help='Process count (default: 8)', default=NUM_PROCS)
+    args = parser.parse_args()
 
-args, unknown = parser.parse_known_args()
+    chunkify = (lambda it, n: takewhile(bool, (list(islice(it, n)) for _ in repeat(None))))
+    chunks = chunkify(iter(find_dirs(args.glob)), args.numprocs)
 
-
-
-
-def join_funcs(args, dir):
-
-
-    # args = " ".join(dir)
-
-    cmd = "rm -v " + dir
-    print("Running %s" % cmd)
-
-    #Add some Exception handling here
-    subprocess.call(cmd, shell=True)
-
-
-
-
-
-
-if __name__ == "__main__":
-    if number of args > 1:
-        print("Usage rmglob \"glob\*\"")
-        exit(1)
-
-
-    dir_list = find_dirs(args.globs)
-
-
-    dir_pack = [dir_list[i:i + NUM_FILES_PER_THREAD] for i in range(0, len(dir_list), n)]
-
-
-    if len(dir_list) < NUM_PROCS:
-        NUM_PROCS = len(dir_list)
-
-
-    with closing(multiprocessing.Pool(processes=NUM_PROCS, maxtasksperchild=10)) as p:
-        p.starmap(join_funcs, zip(repeat(args), dir_pack))
+    pool = Pool(processes=args.numprocs)
+    for chunk in chunks: pool.map(remove, chunk)
