@@ -37,5 +37,5 @@ if __name__ == '__main__':
     chunkify = (lambda it, n: takewhile(bool, (list(islice(it, n)) for _ in repeat(None))))
     chunks = chunkify(iter(find_dirs(args.glob)), args.numprocs)
 
-    pool = Pool(processes=NUM_PROCS)
+    pool = Pool(processes=args.numprocs)
     res = [ pool.map(remove, chunk) for chunk in chunks ]
