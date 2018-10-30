@@ -39,4 +39,3 @@ if __name__ == '__main__':
 
     pool = Pool(processes=args.numprocs)
     res = [ pool.map(remove, chunk) for chunk in chunks ]
-    
