@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # pylint: skip-file
 
-__author__ = "Nile ÓBroin"
+__author__ = "Nile ÓBroin, Alexander Kovalenko"
 __copyright__ = "Copyright 2018, TURBULENT DYNAMICS"
 
 """

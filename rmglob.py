@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-__author__ = "Nile ÓBroin"
+__author__ = "Nile ÓBroin, Alexander Kovalenko"
 __copyright__ = "Copyright 2018, TURBULENT DYNAMICS"
 
 """
