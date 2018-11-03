@@ -33,7 +33,7 @@ for s in range(0, 600, 20):
 
 for s in range(0, 600, 50):
     for i in range(0, 6):
-	pymkdir(ROTATION % (15, s, i))
+        pymkdir(ROTATION % (15, s, i))
 
 for s in range(0, 600, 13):
     pymkdir(ZERO % (15, s))
