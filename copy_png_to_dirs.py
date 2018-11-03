@@ -49,13 +49,18 @@ def copy_src(src):
     dst = os.path.join(dst_dir, dst_filename)
 
 
-    print(src, dst)
-    copyfile(src, dst)
+    if os.path.isfile(dst):
+        print("File exists", dst)
+    else:
+        print(src, " -> ", dst)
+        copyfile(src, dst)
 
 
 for d in dir_list:
+    print(d)
     if d.endswith('png'):
         copy_src(d)
         continue
     for src in glob.glob(d + "/*.png"):
+        print(".")
         copy_src(src)
