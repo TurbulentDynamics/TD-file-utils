@@ -25,7 +25,9 @@ dir_list = glob.glob(args.glob)
 
 
 
-#PLOT_slice/plot_slice_Q4_step_00088980_cut_129/Q4-uxyz-log-vort-contour.png Plot_slice_png/plot_slice_Q4_step_00088980_cut_129_Q4_uxyz_log_vort_contour.png
+#PLOT_slice/plot_slice_Q4_step_00088980_cut_129/Q4-uxyz-log-vort-contour.png
+
+
 def remove_step_num(plt_dir):
     parts = plt_dir.split('_')
     i = parts.index('step')
@@ -56,11 +58,10 @@ def copy_src(src):
         copyfile(src, dst)
 
 
-for d in dir_list:
-    print(d)
-    if d.endswith('png'):
+for file_or_dir in dir_list:
+    #i could be either file or directory
+    if file_or_dir.endswith('png'):
         copy_src(d)
         continue
-    for src in glob.glob(d + "/*.png"):
-        print(".")
+    for src in glob.glob(file_or_dir + "/*.png"):
         copy_src(src)
