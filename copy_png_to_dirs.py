@@ -59,7 +59,6 @@ def copy_src(src):
 
 
 for file_or_dir in dir_list:
-    #i could be either file or directory
     if file_or_dir.endswith('png'):
         copy_src(d)
         continue
