@@ -3,6 +3,9 @@ Some utilities for handling plot files and massive amounts of files.
 
 Linux command line arguments are limited to a certain size so passing many thousands of files into some basic utilities can fail.  To see this limit run ```getconf ARG_MAX # Get argument limit in bytes``` although ```xargs``` can be used to get around this limit.  However, these utilities are specifically designed to work with files and directories with format ```^.*step_[0-9]+.*$```
 
+## Install
+```pip install --user git+https://github.com/TurbulentDynamics/TD-file-utils.git```
+
 
 ## rmglob
 Removes all files and dirs matching the glob.
