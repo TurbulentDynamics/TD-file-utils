@@ -50,12 +50,9 @@ def get_steps(glb):
             steps[idx].append(int(step))
     return steps
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Utility to check if there are any files missing in a sequence of steps.')
-    parser.add_argument('glob', help='Shell glob expression, quoted')
 
-    args, unknown = parser.parse_known_args()
-    steps = get_steps(args.glob)
+def check_step_integrity(glb):
+    steps = get_steps(glb)
 
     for k in steps.keys():
         steps[k].sort()
@@ -64,3 +61,16 @@ if __name__ == '__main__':
         print("  Gap size      : %d" % gap)
         print("  Files present : [%s]" % ','.join(x for x in present_as_ranges(steps[k], gap)))
         print("  Files missing : [%s]" % ','.join(x for x in missing_as_ranges(steps[k], gap)))
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Utility to check if there are any files missing in a sequence of steps.')
+    parser.add_argument('glob', help='Shell glob expression, quoted')
+
+    args, unknown = parser.parse_known_args()
+    check_step_integrity(args.glob)
+
+
+if __name__ == '__main__':
+    main()
