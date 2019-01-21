@@ -13,7 +13,6 @@ __author__ = 'Boris Polyanskiy'
 
 from argparse import ArgumentParser
 import glob
-import itertools
 
 
 def ll_glob(glb, show_all=False):
@@ -24,20 +23,18 @@ def ll_glob(glb, show_all=False):
     :return: None
     """
 
-    count = sum(1 for _ in glob.iglob(glb))
-
-    if not show_all and count >= 21:
-        c = itertools.count(0)
-        for elem in itertools.takewhile(lambda _: next(c) < 10, glob.iglob(glb)):
+    glob_list = sorted(glob.glob(glb))
+    glob_count = len(glob_list)
+    if not show_all and glob_count > 21:
+        for elem in glob_list[:10]:
             print(elem)
-        print('... {} more element{}'.format(count - 20, 's' if count > 21 else ''))
-        c = itertools.count(0)
-        for elem in itertools.dropwhile(lambda _: next(c) + 10 < count, glob.iglob(glb)):
+        print('... {} more element{}'.format(glob_count - 20, 's' if glob_count > 21 else ''))
+        for elem in glob_list[-10:]:
             print(elem)
     else:
-        for elem in glob.iglob(glb):
+        for elem in glob_list:
             print(elem)
-    print('Total elements found: {}'.format(count))
+    print('Total elements found: {}'.format(glob_count))
 
 
 def main():
