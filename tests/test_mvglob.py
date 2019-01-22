@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 """
-Tests for cpglob.py
-For test_cp_glob_command required TD-file-utils package installed to system.
+Tests for mvglob.py
+For test_mv_glob_command required TD-file-utils package installed to system.
 """
 
 __author__ = 'Boris Polyanskiy'
@@ -12,17 +12,17 @@ from os import makedirs
 from os.path import isdir, isfile, join
 import unittest
 
-from TD_file_utils.cpglob import ERR_MSG, copy, copy_glob
+from TD_file_utils.mvglob import ERR_MSG, move, move_glob
 
 from .generate_test_data import generate_data
-from .source import GLOBS, SystemOperationTest, check_glob, clean, stdout_wrapper
+from .source import GLOBS, check_glob, clean, stdout_wrapper, SystemOperationTest
 
 
-class TestCopyGlob(unittest.TestCase, SystemOperationTest):
-    cmd = 'cpglob'
+class TestMoveGlob(unittest.TestCase, SystemOperationTest):
+    cmd = 'mvglob'
+    src_data_file = 'test.txt'
     src_data_dir = 'test_src'
     dst_data_dir = 'test_dst'
-    src_data_file = 'test.txt'
 
     def setUp(self):
         clean(self.src_data_dir, self.dst_data_dir, self.src_data_file)
@@ -30,12 +30,12 @@ class TestCopyGlob(unittest.TestCase, SystemOperationTest):
     def tearDown(self):
         clean(self.src_data_dir, self.dst_data_dir, self.src_data_file)
 
-    def test_copy(self):
+    def test_move(self):
         invalid_file = 'invalid.txt'
         clean(invalid_file)
 
         # src not exists
-        copy(invalid_file, self.dst_data_dir)
+        move(invalid_file, self.dst_data_dir)
         self.assertFalse(isfile(join(self.dst_data_dir, invalid_file)))
 
         # create src file
@@ -43,36 +43,40 @@ class TestCopyGlob(unittest.TestCase, SystemOperationTest):
             pass
 
         # result folder not exists
-        self.assertRaises(IOError, copy, self.src_data_file, self.dst_data_dir)
+        self.assertRaises(IOError, move, self.src_data_file, self.dst_data_dir)
 
         makedirs(self.dst_data_dir)
 
-        # test copy file
-        copy(self.src_data_file, self.dst_data_dir)
+        # test move file
+        move(self.src_data_file, self.dst_data_dir)
         self.assertTrue(isfile(join(self.dst_data_dir, self.src_data_file)))
 
-        # copy file that already exists
+        # create src file
+        with open(self.src_data_file, 'w'):
+            pass
+        # move file that already exists
         self.assertEqual(
             ERR_MSG.format(join(self.dst_data_dir, self.src_data_file)),
-            stdout_wrapper(copy, self.src_data_file, self.dst_data_dir).strip()
+            stdout_wrapper(move, self.src_data_file, self.dst_data_dir).strip()
         )
 
-        # test copy dir
+        # test move dir
         makedirs(self.src_data_dir)
-        copy(self.src_data_dir, self.dst_data_dir)
+        move(self.src_data_dir, self.dst_data_dir)
         self.assertTrue(isdir(join(self.dst_data_dir, self.src_data_dir)))
 
-        # copy dir that already exists
+        # move dir that already exists
+        makedirs(self.src_data_dir)
         self.assertEqual(
             ERR_MSG.format(join(self.dst_data_dir, self.src_data_dir)),
-            stdout_wrapper(copy, self.src_data_dir, self.dst_data_dir).strip()
+            stdout_wrapper(move, self.src_data_dir, self.dst_data_dir).strip()
         )
 
-    def test_copy_glob(self):
+    def test_move_glob(self):
         generate_data(self.src_data_dir)
         for glb in GLOBS:
             data = glob.glob(join(self.src_data_dir, glb))
-            copy_glob(join(self.src_data_dir, glb), self.dst_data_dir)
+            move_glob(join(self.src_data_dir, glb), self.dst_data_dir)
             check_glob(self.src_data_dir, self.dst_data_dir, data)
             clean(self.dst_data_dir)
             makedirs(self.dst_data_dir)
