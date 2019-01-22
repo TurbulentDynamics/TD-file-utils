@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    version='1.0.1',
+    version='1.0.2',
     name='TD_file_utils',
     entry_points={
         'console_scripts': [
@@ -16,5 +16,5 @@ setup(
             'check_step_integrity=TD_file_utils.check_step_integrity:main'
         ],
     },
-    packages=find_packages()
+    packages=find_packages('.', exclude=['tests'])
 )
