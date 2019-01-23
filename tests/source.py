@@ -14,7 +14,7 @@ import unittest
 
 from .generate_test_data import generate_data
 
-GLOBS = ('plot_slice*', '*cut_1536', '*step_*40_*', '*step_*100_*')
+GLOBS = ('plot_slice_*', 'plot_axis_*', 'plot_rotational_*', 'plot_zero_*', '*cut_1536', '*step_*40_*', '*step_*100_*')
 
 
 def clean(*args):
@@ -37,6 +37,10 @@ def check_glob(src, dst, data):
     return isdir(dst) and sorted(data) == sorted(join(src, x) for x in listdir(dst))
 
 
+def check_not_glob(src, data):
+    return all(x not in data for x in glob.glob(src))
+
+
 def check_command_installed(cmd):
     try:
         subprocess.call(cmd, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -44,6 +48,16 @@ def check_command_installed(cmd):
     except IOError:
         install_str = 'python {} install'.format(abspath(join(dirname(__file__), '..', 'setup.py', )))
         raise unittest.SkipTest('Install package TD-file-utils first!\nFor installing type: {}'.format(install_str))
+
+
+def check_command_usage(cmd):
+    # check call without arguments
+    c = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
+    return b'usage' in c.communicate()[1]
+
+
+def stdout_to_list(stdout):
+    return [x.strip() for x in stdout.split('\n') if x.strip()]
 
 
 class SystemOperationTest:
@@ -65,13 +79,12 @@ class SystemOperationTest:
         # Package must be installed to system!
         # check command available in system
         check_command_installed(self.cmd)
-        generate_data(self.src_data_dir)
         for glb in GLOBS:
+            generate_data(self.src_data_dir)
             data = glob.glob(join(self.src_data_dir, glb))
             subprocess.call('{} "{}" {}'.format(self.cmd, join(self.src_data_dir, glb), self.dst_data_dir), shell=True)
             self.assertTrue(check_glob(self.src_data_dir, self.dst_data_dir, data))
             clean(self.dst_data_dir)
 
         # check call without arguments
-        c = subprocess.Popen(self.cmd, shell=True, stderr=subprocess.PIPE)
-        self.assertIn(b'usage', c.communicate()[1])
+        self.assertTrue(check_command_usage(self.cmd))

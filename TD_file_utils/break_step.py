@@ -21,18 +21,27 @@ from TD_file_utils.stuff import CPU_COUNT, pool
 regex = re.compile(r'(.*)_step_(\d+)')
 
 
-def calculate_interval(check, start, step):
-    """Calculate interval of check.
+def calculate_interval(num, start, step):
+    """Calculate left border of interval for check.
+    If step is 0 - raise ValueError.
 
-    :param check: interesting value.
-    :param start: start value of intervals.
-    :param step: step of interval.
+    :param num: interesting value.
+    :param start: left border of known interval.
+    :param step: step of interval, positive number.
     :return: left border of interval.
     """
 
-    for x in itertools.count(start, step):
-        if x <= check < x + step:
-            return x
+    if step == 0:
+        raise ValueError("Step can't be 0!")
+
+    if num == start:
+        return num
+    else:
+        step = abs(step)
+        step_direction = -1 if num < start else 1
+        for x in itertools.count(start, step_direction * step):
+            if x <= num < x + step:
+                return x
 
 
 def get_element(glb, step):
@@ -43,25 +52,20 @@ def get_element(glb, step):
     :return: tuple with path to matched file/folder and folder for move.
     """
 
+    if step == 0:
+        raise ValueError("Step can't be 0!")
     start = None
+    step = abs(step)
 
     for elem in glob.iglob(glb):
-        '''
-        found = regex.search(elem)
-        if not found:
-            continue
-        name, value = found.groups()
-        '''
-
-        # '''
         found = elem.find('_step_')
         if not found:
             continue
 
         name = elem[:found]
-        # faster than regex?
         value = ''.join(itertools.takewhile(str.isdigit, elem[found+6:]))
-        # '''
+        if not value:
+            continue
         if start is None:
             start = int(value)
         interval = calculate_interval(int(value), start, step)
@@ -70,7 +74,7 @@ def get_element(glb, step):
         yield elem, res
 
 
-def break_step(glb, step, proc_count):
+def break_step(glb, step, proc_count=CPU_COUNT):
     """Organize dirs/files via glob pattern.
 
     :param glb: pattern (glob)

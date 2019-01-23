@@ -73,8 +73,8 @@ class TestMoveGlob(unittest.TestCase, SystemOperationTest):
         )
 
     def test_move_glob(self):
-        generate_data(self.src_data_dir)
         for glb in GLOBS:
+            generate_data(self.src_data_dir)
             data = glob.glob(join(self.src_data_dir, glb))
             move_glob(join(self.src_data_dir, glb), self.dst_data_dir)
             check_glob(self.src_data_dir, self.dst_data_dir, data)

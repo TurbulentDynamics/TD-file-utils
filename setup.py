@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    version='1.0.2',
+    version='1.0.3',
     name='TD_file_utils',
     entry_points={
         'console_scripts': [

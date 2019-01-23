@@ -16,6 +16,10 @@ AXIS = "plot_axis__step_%08i_cut_1536"
 ROTATION = "plot_rotational_capture_angle_%i_step_%08i_impeller_id_%i"
 ZERO = "plot_zero_deg_axis_capture_imp_passed_%i_step_%08i"
 
+SLISE_GAP = AXIS_GAP = 20
+ROTATION_GAP = 50
+ZERO_GAP = 13
+
 
 def pymkdir(dirName, verbose=False):
     if not os.path.exists(dirName):

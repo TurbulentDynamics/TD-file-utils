@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+"""
+Tests for rmglob.py
+For test_rm_glob_command required TD-file-utils package installed to system.
+"""
+
 __author__ = 'Boris Polyanskiy'
 
 
@@ -13,7 +18,7 @@ from TD_file_utils.rmglob import find_dirs, remove, remove_glob
 from TD_file_utils.stuff import CPU_COUNT
 
 from .generate_test_data import generate_data
-from .source import GLOBS, clean, check_command_installed, stdout_wrapper
+from .source import GLOBS, clean, check_command_installed, check_command_usage, check_not_glob, stdout_wrapper
 
 
 class TestRemoveGlob(unittest.TestCase):
@@ -48,25 +53,22 @@ class TestRemoveGlob(unittest.TestCase):
         self.assertFalse(isdir(self.src_data_dir))
 
     def test_remove_glob(self):
-        generate_data(self.src_data_dir)
         for glb in GLOBS:
+            generate_data(self.src_data_dir)
             data = glob.glob(join(self.src_data_dir, glb))
             stdout_wrapper(remove_glob, join(self.src_data_dir, glb), CPU_COUNT)
-            for x in glob.iglob(join(self.src_data_dir, glb)):
-                self.assertNotIn(x, data, glb)
+            self.assertTrue(check_not_glob(join(self.src_data_dir, glb), data))
 
     def test_rm_glob_command(self):
         check_command_installed(self.cmd)
-        generate_data(self.src_data_dir)
         for glb in GLOBS:
+            generate_data(self.src_data_dir)
             data = glob.glob(join(self.src_data_dir, glb))
             subprocess.call('{} "{}"'.format(self.cmd, join(self.src_data_dir, glb)), shell=True)
-            for x in glob.iglob(join(self.src_data_dir, glb)):
-                self.assertNotIn(x, data, glb)
+            self.assertTrue(check_not_glob(join(self.src_data_dir, glb), data))
 
         # check call without arguments
-        c = subprocess.Popen(self.cmd, shell=True, stderr=subprocess.PIPE)
-        self.assertIn(b'usage', c.communicate()[1])
+        self.assertTrue(check_command_usage(self.cmd))
 
     def test_find_dirs(self):
         generate_data(self.src_data_dir)
