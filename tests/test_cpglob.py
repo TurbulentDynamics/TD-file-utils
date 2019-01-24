@@ -10,15 +10,16 @@ __author__ = 'Boris Polyanskiy'
 import glob
 from os import makedirs
 from os.path import isdir, isfile, join
+import subprocess
 import unittest
 
 from TD_file_utils.cpglob import ERR_MSG, copy, copy_glob
 
 from .generate_test_data import generate_data
-from .source import GLOBS, SystemOperationTest, check_glob, clean, stdout_wrapper
+from .source import GLOBS, check_command_installed, check_command_usage, check_glob, clean, stdout_wrapper
 
 
-class TestCopyGlob(unittest.TestCase, SystemOperationTest):
+class TestCopyGlob(unittest.TestCase):
     cmd = 'cpglob'
     src_data_dir = 'test_src'
     dst_data_dir = 'test_dst'
@@ -76,6 +77,20 @@ class TestCopyGlob(unittest.TestCase, SystemOperationTest):
             check_glob(self.src_data_dir, self.dst_data_dir, data)
             clean(self.dst_data_dir)
             makedirs(self.dst_data_dir)
+
+    def test_glob_command(self):
+        # Package must be installed to system!
+        # check command available in system
+        check_command_installed(self.cmd)
+        for glb in GLOBS:
+            generate_data(self.src_data_dir)
+            data = glob.glob(join(self.src_data_dir, glb))
+            subprocess.call('{} "{}" {}'.format(self.cmd, join(self.src_data_dir, glb), self.dst_data_dir), shell=True)
+            self.assertTrue(check_glob(self.src_data_dir, self.dst_data_dir, data))
+            clean(self.dst_data_dir)
+
+        # check call without arguments
+        self.assertTrue(check_command_usage(self.cmd))
 
 
 if __name__ == '__main__':

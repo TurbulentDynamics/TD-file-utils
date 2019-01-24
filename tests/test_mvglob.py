@@ -10,15 +10,16 @@ __author__ = 'Boris Polyanskiy'
 import glob
 from os import makedirs
 from os.path import isdir, isfile, join
+import subprocess
 import unittest
 
 from TD_file_utils.mvglob import ERR_MSG, move, move_glob
 
 from .generate_test_data import generate_data
-from .source import GLOBS, check_glob, clean, stdout_wrapper, SystemOperationTest
+from .source import GLOBS, check_glob, check_command_installed, check_command_usage, clean, stdout_wrapper
 
 
-class TestMoveGlob(unittest.TestCase, SystemOperationTest):
+class TestMoveGlob(unittest.TestCase):
     cmd = 'mvglob'
     src_data_file = 'test.txt'
     src_data_dir = 'test_src'
@@ -80,6 +81,20 @@ class TestMoveGlob(unittest.TestCase, SystemOperationTest):
             check_glob(self.src_data_dir, self.dst_data_dir, data)
             clean(self.dst_data_dir)
             makedirs(self.dst_data_dir)
+
+    def test_glob_command(self):
+        # Package must be installed to system!
+        # check command available in system
+        check_command_installed(self.cmd)
+        for glb in GLOBS:
+            generate_data(self.src_data_dir)
+            data = glob.glob(join(self.src_data_dir, glb))
+            subprocess.call('{} "{}" {}'.format(self.cmd, join(self.src_data_dir, glb), self.dst_data_dir), shell=True)
+            self.assertTrue(check_glob(self.src_data_dir, self.dst_data_dir, data))
+            clean(self.dst_data_dir)
+
+        # check call without arguments
+        self.assertTrue(check_command_usage(self.cmd))
 
 
 if __name__ == '__main__':
