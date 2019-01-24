@@ -14,6 +14,9 @@ __author__ = 'Boris Polyanskiy'
 from argparse import ArgumentParser
 import glob
 
+TOTAL_MSG = 'Total elements found: {}'
+INTERVAL_MSG = '... {} more element{}'
+
 
 def ll_glob(glb, show_all=False):
     """Print all files/folders matching pattern.
@@ -28,13 +31,13 @@ def ll_glob(glb, show_all=False):
     if not show_all and glob_count > 21:
         for elem in glob_list[:10]:
             print(elem)
-        print('... {} more element{}'.format(glob_count - 20, 's' if glob_count > 21 else ''))
+        print(INTERVAL_MSG.format(glob_count - 20, 's' if glob_count > 21 else ''))
         for elem in glob_list[-10:]:
             print(elem)
     else:
         for elem in glob_list:
             print(elem)
-    print('Total elements found: {}'.format(glob_count))
+    print(TOTAL_MSG.format(glob_count))
 
 
 def main():
