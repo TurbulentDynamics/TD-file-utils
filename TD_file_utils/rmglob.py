@@ -9,30 +9,29 @@ Should take only 1 glob as input
 """
 
 import argparse
-import os, glob, sys
-import multiprocessing
+import os
+import glob
 from multiprocessing import Pool
 from shutil import rmtree
-import itertools
 from itertools import islice, takewhile, repeat
 
 NUM_PROCS = 8
 
-def find_dirs(glb):
-    for x in glob.iglob(glb):
-        d = os.path.realpath(x)
-        if os.path.isdir(d):
-            yield d
 
-def remove(dirname):
-    print("[PID: %d] Removing %s" % (os.getpid(), dirname))
-    rmtree(dirname)
+def remove(path):
+    print("[PID: %d] Removing %s" % (os.getpid(), path))
+    if os.path.isfile(path):
+        os.remove(path)
+    elif os.path.isdir(path):
+        rmtree(path)
+
 
 def remove_glob(glb, numprocs):
     chunkify = (lambda it, n: takewhile(bool, (list(islice(it, n)) for _ in repeat(None))))
-    chunks = chunkify(iter(find_dirs(glb)), numprocs)
+    chunks = chunkify(glob.iglob(glb), numprocs)
     pool = Pool(processes=numprocs)
-    for chunk in chunks: pool.map(remove, chunk)
+    for chunk in chunks:
+        pool.map(remove, chunk)
 
 
 def main():
